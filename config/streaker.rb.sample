@@ -1,0 +1,20 @@
+# Make a copy of this file in config/ without the .sample extension
+# and adjust settings below to taste.
+module Streaker
+  config.strava_token = "xxxxxxxxxxxxx"
+
+  config.pushover_token = "yyyyyyyyyyyyyy"
+  config.pushover_user_key = "zzzzzzzzzzzzz"
+
+  config.time_zone  = "US/Mountain"
+
+  # Set config.logger if you want to use a different ruby logger
+  # than the defualt.
+  #
+  # For instance, to log remotely to papertrailapp.com, you would use something
+  # like the following, where <host> and XXXX are the name and port number
+  # provided by papertrail.
+  #config.logger = RemoteSyslogLogger.new('logs2.papertrailapp.com',
+  #                                       XXXX,
+  #                                       program: 'streaker')
+end
