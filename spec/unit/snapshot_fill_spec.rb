@@ -1,5 +1,5 @@
 describe SnapshotFill do
-  SECONDS_PER_WEEK = 86400
+  SECONDS_PER_WEEK = 86_400
   let(:target_datetime) { 3.days.ago }
 
   context '.call' do
@@ -19,7 +19,7 @@ describe SnapshotFill do
         it 'creates new daily snapshots from first activity to present' do
           expect { SnapshotFill.new.call }
             .to change { Snapshot.count }
-            .by(((Time.now - target_datetime)/SECONDS_PER_WEEK).ceil)
+            .by(((Time.now - target_datetime) / SECONDS_PER_WEEK).ceil)
         end
       end
 
@@ -32,7 +32,7 @@ describe SnapshotFill do
         it 'creates new daily snapshots from last snapshot to present' do
           expect { SnapshotFill.new.call }
             .to change { Snapshot.count }
-            .by(((Time.now - target_datetime)/SECONDS_PER_WEEK).ceil - 2)
+            .by(((Time.now - target_datetime) / SECONDS_PER_WEEK).ceil - 2)
         end
 
         context 'when the last snapshot was today' do

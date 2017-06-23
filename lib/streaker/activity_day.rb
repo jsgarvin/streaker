@@ -7,10 +7,10 @@ class ActivityDay
 
   def active?
     Activity.qualifying
-      .where(['started_at BETWEEN ? AND ?',
-              date.beginning_of_day,
-              date.end_of_day])
-      .any?
+            .where(['started_at BETWEEN ? AND ?',
+                    date.beginning_of_day,
+                    date.end_of_day])
+            .any?
   end
 
   def previous

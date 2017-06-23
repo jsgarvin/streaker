@@ -9,12 +9,11 @@ class StravaPull
   def call
     strava_activities.each do |strava_activity|
       Activity.create_with(
-                started_at: DateTime.parse(strava_activity['start_date']),
-                strava_type: strava_activity['type'],
-                distance_in_meters: strava_activity['distance'].to_f,
-                moving_time_in_seconds: strava_activity['moving_time'].to_i
-              )
-              .find_or_create_by(strava_id: strava_activity['id'])
+        started_at: DateTime.parse(strava_activity['start_date']),
+        strava_type: strava_activity['type'],
+        distance_in_meters: strava_activity['distance'].to_f,
+        moving_time_in_seconds: strava_activity['moving_time'].to_i
+      ).find_or_create_by(strava_id: strava_activity['id'])
     end
   end
 
@@ -31,7 +30,7 @@ class StravaPull
   end
 
   def from_date
-    last_activity.try(:started_at) || Date.new(1970,1,1)
+    last_activity.try(:started_at) || Date.new(1970, 1, 1)
   end
 
   def last_activity

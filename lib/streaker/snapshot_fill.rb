@@ -1,7 +1,7 @@
 class SnapshotFill
   def call
     date = start_date
-    while date && date < Time.now do
+    while date && date < Time.now
       SnapshotCalculation.new(at: date).save
       date += 1.day
     end

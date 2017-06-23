@@ -14,9 +14,9 @@ task :spec do
 end
 
 namespace :strava do
-  desc "Pull strava activities"
+  desc 'Pull strava activities'
   task :pull do
-    StravaPull.new.call 
+    StravaPull.new.call
     SnapshotFill.new.call
     Notifier.new.call
   end

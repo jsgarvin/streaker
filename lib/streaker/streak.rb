@@ -17,10 +17,10 @@ class Streak
 
   def units(name)
     klass = "Activity#{name.to_s.singularize.titleize}".constantize
-    Array.new.tap do |units|
+    [].tap do |units|
       activity_unit = klass.new(end_date)
       while activity_unit.active?
-        units  << activity_unit
+        units << activity_unit
         activity_unit = activity_unit.previous
       end
     end

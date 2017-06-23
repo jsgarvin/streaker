@@ -24,6 +24,6 @@ class PushoverAlert
   end
 
   def url
-    @url ||= "https://api.pushover.net/1/messages.json"
+    @url ||= 'https://api.pushover.net/1/messages.json'
   end
 end
