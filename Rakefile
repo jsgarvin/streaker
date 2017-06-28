@@ -18,7 +18,7 @@ namespace :strava do
   task :pull do
     StravaPull.new.call
     SnapshotFill.new.call
-    Notifier.new.call
+    AlertCheck.new.call
   end
 end
 

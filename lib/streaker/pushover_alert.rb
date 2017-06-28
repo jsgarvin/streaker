@@ -1,13 +1,14 @@
 class PushoverAlert
-  attr_reader :message, :title
+  attr_reader :message, :title, :rest_client
 
-  def initialize(title:, message:)
+  def initialize(title:, message:, rest_client: HTTP)
     @title = title
     @message = message
+    @rest_client = rest_client
   end
 
   def call
-    HTTP.post(url, params: payload)
+    rest_client.post(url, params: payload)
   end
 
   private

@@ -1,8 +1,9 @@
 class ActivityWeek
-  attr_reader :date
+  attr_reader :date, :day_constructor
 
-  def initialize(date)
+  def initialize(date, day_constructor: ActivityDay)
     @date = date
+    @day_constructor = day_constructor
   end
 
   def active?
@@ -21,7 +22,7 @@ class ActivityWeek
 
   def activity_days
     (0..6).map do |x|
-      ActivityDay.new(date.beginning_of_week + x.days)
+      day_constructor.new(date.beginning_of_week + x.days)
     end
   end
 end

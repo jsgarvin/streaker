@@ -2,7 +2,7 @@ class ActivityDay
   attr_reader :date
 
   def initialize(date)
-    @date = date.in_time_zone(Streaker.config.time_zone)
+    @date = date.in_time_zone(Streaker.config.time_zone).to_date
   end
 
   def active?

@@ -1,6 +1,8 @@
 require 'bundler/setup'
 require 'yaml'
 require 'active_record'
+require 'active_support'
+require 'active_support/core_ext'
 require 'remote_syslog_logger'
 require 'logger'
 require 'pry'

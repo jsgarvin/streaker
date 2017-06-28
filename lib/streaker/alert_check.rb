@@ -1,9 +1,15 @@
-class Notifier
+class AlertCheck
+  attr_reader :alert_constructor
+
+  def initialize(alert_constructor: PushoverAlert)
+    @alert_constructor = alert_constructor
+  end
+
   def call
     if snapshot && snapshot.unnotified?
-      PushoverAlert.new(title: 'Streaker Notification',
-                        message: message)
-                   .call
+      alert_constructor.new(title: 'Streaker Notification',
+                            message: message)
+                       .call
       snapshot.update(notified_at: Time.now)
     end
   end

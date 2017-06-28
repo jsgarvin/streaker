@@ -3,5 +3,5 @@ class Activity < ActiveRecord::Base
             :moving_time_in_seconds, presence: true
   validates :strava_id, uniqueness: true
 
-  scope :qualifying, -> { where(['moving_time_in_seconds > ?', 600]) }
+  scope :qualifying, -> { where(['moving_time_in_seconds >= ?', 600]) }
 end

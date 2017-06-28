@@ -199,6 +199,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   activerecord_sane_schema_dumper
+  activesupport
   coveralls
   database_cleaner
   factory_girl
