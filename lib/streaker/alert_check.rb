@@ -6,7 +6,7 @@ class AlertCheck
   end
 
   def call
-    if snapshot && snapshot.unnotified?
+    if send_alert?
       alert_constructor.new(title: 'Streaker Notification',
                             message: message)
                        .call
@@ -15,6 +15,12 @@ class AlertCheck
   end
 
   private
+
+  def send_alert?
+    snapshot &&
+      snapshot.unnotified? &&
+      snapshot.changed_from_previous_notified?
+  end
 
   def snapshot
     Snapshot.where(['shot_at > ?', 48.hours.ago])

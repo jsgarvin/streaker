@@ -81,7 +81,7 @@ describe Streak do
           allow(active_week).to receive(:previous).and_return(previous_week)
         end
 
-        it 'FOO returns and array with the active week' do
+        it 'returns and array with the active week' do
           expect(streak.weeks).to eq([active_week])
         end
       end

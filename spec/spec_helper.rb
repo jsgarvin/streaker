@@ -62,6 +62,14 @@ RSpec.configure do |config|
     # a real object. This is generally recommended, and will default to
     # `true` in RSpec 4.
     mocks.verify_partial_doubles = true
+
+    # Workaround for "class does not implement the instance method" errors
+    # when using instance_double on ActiveRecord models and trying to allow
+    # the double to recieve db column attributes
+    # ref: https://relishapp.com/rspec/rspec-mocks/v/3-6/docs/verifying-doubles/dynamic-classes
+    mocks.before_verifying_doubles do |reference|
+      reference.target.try(:define_attribute_methods)
+    end
   end
 
   # This option will default to `:apply_to_host_groups` in RSpec 4 (and will
