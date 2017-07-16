@@ -1,0 +1,2 @@
+describe Notification do
+end

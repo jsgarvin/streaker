@@ -1,7 +1,17 @@
 describe AlertCheck do
   let(:alert) { double('alert') }
-  let(:alert_constructor) { double('alert_constructor', new: alert) }
-  let(:check) { AlertCheck.new(alert_constructor: alert_constructor) }
+  let(:alert_constructor) { double('Alert', new: alert) }
+  let(:notification_constructor) { double('Notification') }
+  let(:check) do
+    AlertCheck.new(alert_constructor: alert_constructor,
+                   notification_constructor: notification_constructor)
+  end
+
+  before do
+    allow(alert).to receive(:call)
+    allow(notification_constructor).to receive(:create)
+  end
+
 
   describe '#call' do
     context 'when there are no snapshots' do
@@ -9,24 +19,33 @@ describe AlertCheck do
         expect(alert).not_to receive(:call)
         check.call
       end
+
+      it 'should not create a notification' do
+        expect(notification_constructor).not_to receive(:create)
+        check.call
+      end
     end
 
-    context 'when there is a recent snapshot' do
-      let(:arel) { double('ActiveRecord::Relation') }
-      let(:snapshot) { instance_double('Snapshot') }
+    context 'when there are snapshots' do
+      let!(:snapshot) { FactoryGirl.create(:snapshot) }
 
-      before do
-        messages = { where: arel, order: arel, last: snapshot }
-        allow(Snapshot).to receive_messages(messages)
-        allow(arel).to receive_messages(messages)
-        allow(snapshot).to receive_messages(Snapshot.column_names)
+      context 'when there are no notificatons' do
+        it 'should alert' do
+          expect(alert).to receive(:call)
+          check.call
+        end
+
+        it 'should create a notification' do
+          expect(notification_constructor).to receive(:create)
+          check.call
+        end
       end
 
-      context 'when snapshot notificaton has already been sent' do
-        let(:notified_at) { 1.hour.ago }
+      context 'when there are no snapshots since the latest notification' do
+        let(:notification) { FactoryGirl.create(:notification) }
 
         before do
-          allow(snapshot).to receive(:unnotified?).and_return(false)
+          snapshot.update_columns(shot_at: notification.created_at - 1.minute)
         end
 
         it 'should not alert' do
@@ -34,42 +53,25 @@ describe AlertCheck do
           check.call
         end
 
-        it 'should not update notified at' do
-          expect(snapshot).not_to receive(:update)
+        it 'should not create a notification' do
+          expect(notification_constructor).not_to receive(:create)
           check.call
         end
       end
 
-      context 'when snapshot notificaton has not been sent' do
+      context 'when there are snapshots since the latest notification' do
+        let(:payload_digest) { 'd1g35t' }
+        let(:notification) do
+          FactoryGirl.create(:notification, payload_digest: payload_digest)
+        end
+
         before do
-          allow(alert).to receive(:call)
-          allow(snapshot).to receive_messages(unnotified?: true, update: true)
+          snapshot.update_columns(shot_at: notification.created_at + 1.minute)
         end
 
-        context 'when the snapshot has changed from the previous notified' do
+        context 'when the notification digest has not changed' do
           before do
-            allow(snapshot).to receive(:changed_from_previous_notified?)
-                           .and_return(true)
-          end
-
-          it 'should alert' do
-            expect(alert).to receive(:call)
-            check.call
-          end
-
-          it 'should update notified at' do
-            Timecop.freeze do
-              expect(snapshot).to receive(:update)
-                              .with(notified_at: Time.now)
-              check.call
-            end
-          end
-        end
-
-        context 'when the snapshot has not changed from the previous notified' do
-          before do
-            allow(snapshot).to receive(:changed_from_previous_notified?)
-                           .and_return(false)
+            check.stub(payload_digest: payload_digest)
           end
 
           it 'should not alert' do
@@ -77,8 +79,20 @@ describe AlertCheck do
             check.call
           end
 
-          it 'should not update notified at' do
-            expect(snapshot).not_to receive(:update)
+          it 'should not create a notification' do
+            expect(notification_constructor).not_to receive(:create)
+            check.call
+          end
+        end
+
+        context 'when the notification digest has changed' do
+          it 'should alert' do
+            expect(alert).to receive(:call)
+            check.call
+          end
+
+          it 'should create a notification' do
+            expect(notification_constructor).to receive(:create)
             check.call
           end
         end
