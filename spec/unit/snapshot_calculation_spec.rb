@@ -1,7 +1,12 @@
 describe SnapshotCalculation do
-  let(:target_datetime) { 7.days.ago.beginning_of_week + 5.days + 23.hours }
+  let(:time_zone) { 'US/Mountain' }
+  let(:target_datetime) { 7.days.ago.in_time_zone(time_zone).beginning_of_week + 5.days + 23.hours }
   let(:calculation) do
     SnapshotCalculation.new(at: target_datetime)
+  end
+
+  before do
+    Streaker.config.time_zone = time_zone
   end
 
   context '#save' do
@@ -114,6 +119,64 @@ describe SnapshotCalculation do
             expect(calculation.active_days_in_a_row).to eql(2)
           end
         end
+      end
+    end
+  end
+
+  context '#active_days_in_last_month' do
+    let(:start_of_range) { (target_datetime - 30.days).to_date }
+    let(:end_of_range) { target_datetime.to_date }
+    before do
+      # create out of range activity
+      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+    end
+
+    context 'when there are no active days in range' do
+      it' should return 0' do
+        expect(calculation.active_days_in_last_month).to eq(0)
+      end
+    end
+
+    context 'when there are active days in range' do
+      before do
+        1.upto(10).each do |x|
+          FactoryGirl.create(:qualifying_activity,
+                             started_at: start_of_range + x.days)
+        end
+      end
+
+      it 'should return active days'  do
+        expect(calculation.active_days_in_last_month).to eq(10)
+      end
+    end
+  end
+
+  context '#active_weks_in_last_month' do
+    let(:start_of_range) { (target_datetime.beginning_of_week - 3.weeks).to_date }
+    let(:end_of_range) { target_datetime.to_date }
+    before do
+      # create out of range activity
+      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+    end
+
+    context 'when there are no active weeks in range' do
+      it' should return 0' do
+        expect(calculation.active_weeks_in_last_month).to eq(0)
+      end
+    end
+
+    context 'when there are active weeks in range' do
+      before do
+        1.upto(2).each do |x|
+          FactoryGirl.create(:qualifying_activity,
+                             started_at: start_of_range + x.weeks + 1.day)
+          FactoryGirl.create(:qualifying_activity,
+                             started_at: start_of_range + x.weeks + 2.days)
+        end
+      end
+
+      it 'should return active weeks'  do
+        expect(calculation.active_weeks_in_last_month).to eq(2)
       end
     end
   end
