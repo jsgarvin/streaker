@@ -44,8 +44,8 @@ class AlertCheck
 
   def payload_data
     @payload_data ||= BindableStruct.new(
-      active_days_in_a_row: last_snapshot.active_days_in_a_row,
-      active_weeks_in_a_row: last_snapshot.active_weeks_in_a_row,
+      active_days_in_a_row: last_snapshot.active_days_in_a_row_with_fallback,
+      active_weeks_in_a_row: last_snapshot.active_weeks_in_a_row_with_fallback,
       record_active_days_in_a_row: record_active_days_in_a_row,
       record_active_weeks_in_a_row: record_active_weeks_in_a_row
     )
