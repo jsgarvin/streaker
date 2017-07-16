@@ -9,6 +9,9 @@ class PushoverAlert
 
   def call
     rest_client.post(url, params: payload)
+  rescue Exception => e
+    Streaker.logger.fatal("#{self} died with #{e}: #{e.message}")
+    raise e
   end
 
   private

@@ -5,6 +5,9 @@ class SnapshotFill
       SnapshotCalculation.new(at: date).save
       date += 1.day
     end
+  rescue Exception => e
+    Streaker.logger.fatal("#{self} died with #{e}: #{e.message}")
+    raise e
   end
 
   private

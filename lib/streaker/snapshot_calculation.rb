@@ -6,6 +6,7 @@ class SnapshotCalculation
   end
 
   def save
+    Streaker.logger.info("Saving SnapshotCalculation: #{self}")
     Snapshot.create(shot_at: at,
                     active_days_in_a_row: active_days_in_a_row,
                     active_weeks_in_a_row: active_weeks_in_a_row)

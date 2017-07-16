@@ -16,9 +16,11 @@ end
 namespace :strava do
   desc 'Pull strava activities'
   task :pull do
+    Streaker.logger.info('Running rake strava:pull')
     StravaPull.new.call
     SnapshotFill.new.call
     AlertCheck.new.call
+    Streaker.logger.info('Finished rake strava:pull')
   end
 end
 

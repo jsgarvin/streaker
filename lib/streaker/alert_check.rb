@@ -9,11 +9,15 @@ class AlertCheck
 
   def call
     if send_alert?
+      Streaker.logger.info("Sending Alert: #{payload_data.to_s}")
       alert_constructor.new(title: 'Streaker Notification',
                             message: message)
                        .call
       notification_constructor.create(payload_digest: payload_digest)
     end
+  rescue Exception => e
+    Streaker.logger.fatal("#{self} died with #{e}: #{e.message}")
+    raise e
   end
 
   private

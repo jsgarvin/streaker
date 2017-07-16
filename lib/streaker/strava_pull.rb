@@ -8,6 +8,7 @@ class StravaPull
 
   def call
     strava_activities.each do |strava_activity|
+      Streaker.logger.info("Creating Activity: #{strava_activity}")
       Activity.create_with(
         started_at: DateTime.parse(strava_activity['start_date']),
         strava_type: strava_activity['type'],
@@ -15,6 +16,9 @@ class StravaPull
         moving_time_in_seconds: strava_activity['moving_time'].to_i
       ).find_or_create_by(strava_id: strava_activity['id'])
     end
+  rescue Exception => e
+    Streaker.logger.fatal("#{self} died with #{e}: #{e.message}")
+    raise e
   end
 
   private
