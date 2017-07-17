@@ -49,7 +49,17 @@ class AlertCheck
   def payload_data
     @payload_data ||= BindableStruct.new(
       active_days_in_a_row: last_snapshot.active_days_in_a_row_with_fallback,
+      active_days_in_last_month: last_snapshot.active_days_in_last_month,
+      active_days_in_last_quarter: last_snapshot.active_days_in_last_quarter,
+      active_days_in_last_year: last_snapshot.active_days_in_last_year,
+      active_days_in_last_three_years: last_snapshot.active_days_in_last_three_years,
+      active_days_in_last_five_years: last_snapshot.active_days_in_last_five_years,
       active_weeks_in_a_row: last_snapshot.active_weeks_in_a_row_with_fallback,
+      active_weeks_in_last_month: last_snapshot.active_weeks_in_last_month,
+      active_weeks_in_last_quarter: last_snapshot.active_weeks_in_last_quarter,
+      active_weeks_in_last_year: last_snapshot.active_weeks_in_last_year,
+      active_weeks_in_last_three_years: last_snapshot.active_weeks_in_last_three_years,
+      active_weeks_in_last_five_years: last_snapshot.active_weeks_in_last_five_years,
       record_active_days_in_a_row: record_active_days_in_a_row,
       record_active_weeks_in_a_row: record_active_weeks_in_a_row
     )

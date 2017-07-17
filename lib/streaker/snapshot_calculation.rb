@@ -10,8 +10,16 @@ class SnapshotCalculation
     Snapshot.create(shot_at: at,
                     active_days_in_a_row: active_days_in_a_row,
                     active_days_in_last_month: active_days_in_last_month,
+                    active_days_in_last_quarter: active_days_in_last_quarter,
+                    active_days_in_last_year: active_days_in_last_year,
+                    active_days_in_last_three_years: active_days_in_last_three_years,
+                    active_days_in_last_five_years: active_days_in_last_five_years,
                     active_weeks_in_a_row: active_weeks_in_a_row,
-                    active_weeks_in_last_month: active_weeks_in_last_month)
+                    active_weeks_in_last_month: active_weeks_in_last_month,
+                    active_weeks_in_last_quarter: active_weeks_in_last_quarter,
+                    active_weeks_in_last_year: active_weeks_in_last_year,
+                    active_weeks_in_last_three_years: active_weeks_in_last_three_years,
+                    active_weeks_in_last_five_years: active_weeks_in_last_five_years)
   end
 
   def active_days_in_a_row
@@ -19,7 +27,23 @@ class SnapshotCalculation
   end
 
   def active_days_in_last_month
-    @active_days_in_last_month ||= active_days_between(at - 30.days, at)
+    @active_days_in_last_month ||= active_days_between(at - 29.days, at)
+  end
+
+  def active_days_in_last_quarter
+    @active_days_in_last_quarter ||= active_days_between(at - 89.days, at)
+  end
+
+  def active_days_in_last_year
+    @active_days_in_last_year ||= active_days_between(at - 364.days, at)
+  end
+
+  def active_days_in_last_three_years
+    @active_days_in_last_three_years ||= active_days_between(at - 1094.days, at)
+  end
+
+  def active_days_in_last_five_years
+    @active_days_in_last_five_years ||= active_days_between(at - 1824.days, at)
   end
 
   def active_weeks_in_a_row
@@ -28,6 +52,24 @@ class SnapshotCalculation
 
   def active_weeks_in_last_month
     @active_weeks_in_last_month ||= active_weeks_between(at - 3.weeks, at)
+  end
+
+  def active_weeks_in_last_quarter
+    @active_weeks_in_last_quarter ||= active_weeks_between(at - 13.weeks, at)
+  end
+
+  def active_weeks_in_last_year
+    @active_weeks_in_last_year ||= active_weeks_between(at - 51.weeks, at)
+  end
+
+  def active_weeks_in_last_three_years
+    @active_weeks_in_last_three_years ||=
+      active_weeks_between(at - 155.weeks, at)
+  end
+
+  def active_weeks_in_last_five_years
+    @active_weeks_in_last_five_years ||=
+      active_weeks_between(at - 259.weeks, at)
   end
 
   private
