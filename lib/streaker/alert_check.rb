@@ -16,7 +16,7 @@ class AlertCheck
       notification_constructor.create(payload_digest: payload_digest)
     end
   rescue Exception => e
-    Streaker.logger.fatal("#{self} died with #{e}: #{e.message}")
+    Streaker.logger.fatal("#{self} died with #{e.class}: #{e.message}")
     raise e
   end
 

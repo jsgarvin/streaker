@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'activerecord'
 gem 'activesupport'
+gem 'admit_one'
 gem 'rake'
 gem 'sqlite3'
 gem 'strava-api-v3'

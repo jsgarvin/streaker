@@ -6,7 +6,7 @@ class SnapshotFill
       date += 1.day
     end
   rescue Exception => e
-    Streaker.logger.fatal("#{self} died with #{e}: #{e.message}")
+    Streaker.logger.fatal("#{self} died with #{e.class}: #{e.message}")
     raise e
   end
 

@@ -2,6 +2,7 @@ require_relative 'config/environment.rb'
 require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'activerecord_sane_schema_dumper'
+require 'admit_one'
 
 task default: [:rubocop, :spec]
 
@@ -16,11 +17,23 @@ end
 namespace :strava do
   desc 'Pull strava activities'
   task :pull do
-    Streaker.logger.info('Running rake strava:pull')
-    StravaPull.new.call
-    SnapshotFill.new.call
-    AlertCheck.new.call
-    Streaker.logger.info('Finished rake strava:pull')
+    begin
+      Streaker.logger.info('Running rake strava:pull')
+      AdmitOne::LockFile.new(:streaker) do
+        begin
+          StravaPull.new.call
+          SnapshotFill.new.call
+          AlertCheck.new.call
+        rescue AdmitOne::LockFailure
+          Streaker.logger.info('Failed to aquire AdmitOne lock. Another '\
+                               'instance already running?')
+        end
+      end
+      Streaker.logger.info('Finished rake strava:pull')
+    rescue Exception => e
+      Streaker.logger.fatal("Rake task died with #{e.class}: #{e.message}")
+      raise e
+    end
   end
 end
 
