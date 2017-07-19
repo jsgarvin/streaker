@@ -124,7 +124,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_days_in_last_month' do
-    let(:start_of_range) { (target_datetime - 29.days).to_date }
+    let(:start_of_range) do
+      (target_datetime - (DAYS_IN_A_MONTH - 1).days).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -152,7 +154,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_days_in_last_quarter' do
-    let(:start_of_range) { (target_datetime - 89.days).to_date }
+    let(:start_of_range) do
+      (target_datetime - (DAYS_IN_A_QUARTER - 1).days).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -180,7 +184,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_days_in_last_year' do
-    let(:start_of_range) { (target_datetime - 364.days).to_date }
+    let(:start_of_range) do
+      (target_datetime - (DAYS_IN_A_YEAR - 1).days).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -208,7 +214,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_days_in_last_three_years' do
-    let(:start_of_range) { (target_datetime - 1094.days).to_date }
+    let(:start_of_range) do
+      (target_datetime - (DAYS_IN_THREE_YEARS - 1).days).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -237,7 +245,9 @@ describe SnapshotCalculation do
 
 
   context '#active_days_in_last_five_years' do
-    let(:start_of_range) { (target_datetime - 1824.days).to_date }
+    let(:start_of_range) do
+      (target_datetime - (DAYS_IN_FIVE_YEARS - 1).days).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -265,7 +275,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_weeks_in_last_month' do
-    let(:start_of_range) { (target_datetime.beginning_of_week - 3.weeks).to_date }
+    let(:start_of_range) do
+      (target_datetime.beginning_of_week - (WEEKS_IN_A_MONTH - 1).weeks).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -295,7 +307,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_weeks_in_last_quarter' do
-    let(:start_of_range) { (target_datetime.beginning_of_week - 12.weeks).to_date }
+    let(:start_of_range) do
+      (target_datetime.beginning_of_week - (WEEKS_IN_A_QUARTER - 1).weeks).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -325,7 +339,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_weeks_in_last_year' do
-    let(:start_of_range) { (target_datetime.beginning_of_week - 51.weeks).to_date }
+    let(:start_of_range) do
+      (target_datetime.beginning_of_week - (WEEKS_IN_A_YEAR - 1).weeks).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -355,7 +371,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_weeks_in_last_three_years' do
-    let(:start_of_range) { (target_datetime.beginning_of_week - 155.weeks).to_date }
+    let(:start_of_range) do
+      (target_datetime.beginning_of_week - (WEEKS_IN_THREE_YEARS - 1).weeks).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
@@ -385,7 +403,9 @@ describe SnapshotCalculation do
   end
 
   context '#active_weeks_in_last_five_years' do
-    let(:start_of_range) { (target_datetime.beginning_of_week - 259.weeks).to_date }
+    let(:start_of_range) do
+      (target_datetime.beginning_of_week - (WEEKS_IN_FIVE_YEARS - 1).weeks).to_date
+    end
     let(:end_of_range) { target_datetime.to_date }
     before do
       # create out of range activity
