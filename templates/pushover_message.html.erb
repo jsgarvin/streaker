@@ -3,35 +3,35 @@ Current: <%= active_days_in_a_row %>
 Record:  <%= record_active_days_in_a_row %>
 
 <b>Active Days In Last Month</b>
-Current: <%= active_days_in_last_month %>
+Current: <%= active_in_last(:days, :month) %>/<%= DAYS_IN_A_MONTH %> (<%= percent_active_in_last(:days, :month) %>%)
 
 <b>Active Days In Last Quarter</b>
-Current: <%= active_days_in_last_quarter %>
+Current: <%= active_in_last(:days, :quarter) %>/<%= DAYS_IN_A_QUARTER %> (<%= percent_active_in_last(:days, :quarter) %>%)
 
 <b>Active Days In Last Year</b>
-Current: <%= active_days_in_last_year %>
+Current: <%= active_in_last(:days, :year) %>/<%= DAYS_IN_A_YEAR %> (<%= percent_active_in_last(:days, :year) %>%)
 
 <b>Active Days In Last Three Years</b>
-Current: <%= active_days_in_last_three_years %>
+Current: <%= active_in_last(:days, :three_years) %>/<%= DAYS_IN_THREE_YEARS %> (<%= percent_active_in_last(:days, :three_years) %>%)
 
 <b>Active Days In Last Five Years</b>
-Current: <%= active_days_in_last_five_years %>
+Current: <%= active_in_last(:days, :five_years) %>/<%= DAYS_IN_FIVE_YEARS %> (<%= percent_active_in_last(:days, :five_years) %>%)
 
 <b>Active Weeks In A Row</b>
 Current: <%= active_weeks_in_a_row %>
 Record:  <%= record_active_weeks_in_a_row %>
 
 <b>Active Weeks Last Month</b>
-Current: <%= active_weeks_in_last_month %>
+Current: <%= active_in_last(:weeks, :month) %>/<%= WEEKS_IN_A_MONTH %> (<%= percent_active_in_last(:weeks, :month) %>%)
 
 <b>Active Weeks Last Quarter</b>
-Current: <%= active_weeks_in_last_quarter %>
+Current: <%= active_in_last(:weeks, :quarter) %>/<%= WEEKS_IN_A_QUARTER %> (<%= percent_active_in_last(:weeks, :quarter) %>%)
 
 <b>Active Weeks Last Year</b>
-Current: <%= active_weeks_in_last_year %>
+Current: <%= active_in_last(:weeks, :year) %>/<%= WEEKS_IN_A_YEAR %> (<%= percent_active_in_last(:weeks, :year) %>%)
 
 <b>Active Weeks Last Three Years</b>
-Current: <%= active_weeks_in_last_three_years %>
+Current: <%= active_in_last(:weeks, :three_years) %>/<%= WEEKS_IN_THREE_YEARS %> (<%= percent_active_in_last(:weeks, :three_years) %>%)
 
 <b>Active Weeks Last Five Years</b>
-Current: <%= active_weeks_in_last_five_years %>
+Current: <%= active_in_last(:weeks, :five_years) %>/<%= WEEKS_IN_FIVE_YEARS %> (<%= percent_active_in_last(:weeks, :five_years) %>%)
