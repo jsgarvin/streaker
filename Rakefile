@@ -19,15 +19,15 @@ namespace :strava do
   task :pull do
     begin
       Streaker.logger.info('Running rake strava:pull')
-      AdmitOne::LockFile.new(:streaker) do
-        begin
+      begin
+        AdmitOne::LockFile.new(:streaker) do
           StravaPull.new.call
           SnapshotFill.new.call
           AlertCheck.new.call
-        rescue AdmitOne::LockFailure
-          Streaker.logger.info('Failed to aquire AdmitOne lock. Another '\
-                               'instance already running?')
         end
+      rescue AdmitOne::LockFailure
+        Streaker.logger.info('Failed to aquire AdmitOne lock. Another '\
+                             'instance already running?')
       end
       Streaker.logger.info('Finished rake strava:pull')
     rescue Exception => e
