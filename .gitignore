@@ -1,4 +1,4 @@
 config/streaker.rb
 db/*.db
-log/*.log
+log/*.log*
 spec/examples.txt
