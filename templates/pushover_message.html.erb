@@ -1,5 +1,5 @@
 <b>Active Days In A Row</b>
-Current: <%= active_days_in_a_row %>
+Current: <%= active_days_in_a_row_with_fallback %>
 Record:  <%= record_active_days_in_a_row %>
 
 <b>Active Days In Last Month</b>
@@ -18,7 +18,7 @@ Current: <%= active_in_last(:days, :three_years) %>/<%= DAYS_IN_THREE_YEARS %> (
 Current: <%= active_in_last(:days, :five_years) %>/<%= DAYS_IN_FIVE_YEARS %> (<%= percent_active_in_last(:days, :five_years) %>%)
 
 <b>Active Weeks In A Row</b>
-Current: <%= active_weeks_in_a_row %>
+Current: <%= active_weeks_in_a_row_with_fallback %>
 Record:  <%= record_active_weeks_in_a_row %>
 
 <b>Active Weeks Last Month</b>

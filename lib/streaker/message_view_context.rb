@@ -1,7 +1,9 @@
 class MessageViewContext
   attr_reader :snapshot
 
-  delegate :active_days_in_a_row, :active_weeks_in_a_row, to: :snapshot
+  delegate :active_days_in_a_row_with_fallback,
+           :active_weeks_in_a_row_with_fallback,
+           to: :snapshot
 
   def initialize(snapshot:)
     @snapshot = snapshot
