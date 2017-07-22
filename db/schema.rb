@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170715221223094) do
+ActiveRecord::Schema.define(version: 20170722151835622) do
 
   create_table "activities", force: :cascade do |t|
     t.integer  "strava_id"
@@ -22,6 +22,13 @@ ActiveRecord::Schema.define(version: 20170715221223094) do
     t.datetime "updated_at",                                     null: false
     t.index ["started_at"], name: "index_activities_on_started_at"
     t.index ["strava_id"], name: "index_activities_on_strava_id"
+  end
+
+  create_table "jefit_activity_dates", force: :cascade do |t|
+    t.date     "active_on"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["active_on"], name: "index_jefit_activity_dates_on_active_on"
   end
 
   create_table "notifications", force: :cascade do |t|
