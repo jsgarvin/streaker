@@ -30,9 +30,9 @@ namespace :streaker do
         Streaker.logger.info('Failed to aquire AdmitOne lock. Another '\
                              'instance already running?')
       end
-      Streaker.logger.info('Finished rake strava:pull')
+      Streaker.logger.info('Finished rake streaker:process')
     rescue Exception => e
-      Streaker.logger.fatal("Rake task died with #{e.class}: #{e.message}")
+      Streaker.logger.fatal("streaker:process died with #{e.class}: #{e.message}")
       raise e
     end
   end

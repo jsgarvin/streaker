@@ -25,7 +25,7 @@ class AlertCheck
   def send_alert?
     last_snapshot &&
       last_snapshot_newer_than_last_notification? &&
-      paylist_digest_has_changed_since_last_notification?
+      payload_digest_has_changed_since_last_notification?
   end
 
   def last_snapshot_newer_than_last_notification?
@@ -33,7 +33,7 @@ class AlertCheck
       last_notification.created_at < last_snapshot.shot_at
   end
 
-  def paylist_digest_has_changed_since_last_notification?
+  def payload_digest_has_changed_since_last_notification?
     last_notification.nil? ||
       payload_digest != last_notification.payload_digest
   end
