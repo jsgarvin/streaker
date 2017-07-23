@@ -15,7 +15,7 @@ class ActivityWeek
   end
 
   def active?
-    active_days.count >= 2 && jefit_activity_dates.count >= 2
+    active_days.count >= 5 && jefit_activity_dates.count >= 2
   end
 
   def previous

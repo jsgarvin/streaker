@@ -84,15 +84,50 @@ describe ActivityWeek do
       end
     end
 
-    context 'when there are two active day during the week' do
-      let(:days) { ([inactive_day]*5 + [active_day]*2).shuffle }
+    context 'when there are four active day during the week' do
+      let(:days) { ([inactive_day]*3 + [active_day]*4).shuffle }
 
       before do
         allow(day_constructor).to receive(:new)
                               .and_return(*days)
       end
 
-      it 'should be truthy' do
+      it 'should be falsey' do
+        expect(week.active?).to be_falsey
+      end
+
+      context 'when there is one jefit activity date' do
+        before do
+          FactoryGirl.create(:jefit_activity_date,
+                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+        end
+
+        it 'should be falsey' do
+          expect(week.active?).to be_falsey
+        end
+
+        context 'when there is another jefit activity date' do
+          before do
+            FactoryGirl.create(:jefit_activity_date,
+                               active_on: 2.weeks.ago.beginning_of_week + 3.days)
+          end
+
+          it 'should be falsey' do
+            expect(week.active?).to be_falsey
+          end
+        end
+      end
+    end
+
+    context 'when there are five active day during the week' do
+      let(:days) { ([inactive_day]*2 + [active_day]*5).shuffle }
+
+      before do
+        allow(day_constructor).to receive(:new)
+                              .and_return(*days)
+      end
+
+      it 'should be falsey' do
         expect(week.active?).to be_falsey
       end
 
