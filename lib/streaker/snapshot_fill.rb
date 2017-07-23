@@ -1,8 +1,14 @@
 class SnapshotFill
+  attr_reader :snapshot_calculation_constructor
+
+  def initialize(snapshot_calculation_constructor: SnapshotCalculation)
+    @snapshot_calculation_constructor = snapshot_calculation_constructor
+  end
+
   def call
     date = start_date
     while date && date < Time.now
-      SnapshotCalculation.new(at: date).save
+      snapshot_calculation_constructor.new(at: date).save
       date += 1.day
     end
   rescue Exception => e
