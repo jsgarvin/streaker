@@ -10,6 +10,17 @@ describe ActivityDay do
       it 'should be false' do
         expect(day.active?).to be_falsey
       end
+
+      context 'when there is a jefit activity day on the date' do
+        before do
+          FactoryGirl.create(:jefit_activity_date,
+                             active_on: 2.days.ago.to_date)
+        end
+
+        it 'shold be true' do
+          expect(day.active?).to be_truthy
+        end
+      end
     end
 
     context 'when there are qualifying activities on the date' do

@@ -6,14 +6,23 @@ class ActivityDay
   end
 
   def active?
-    Activity.qualifying
-            .where(['started_at BETWEEN ? AND ?',
-                    date.beginning_of_day,
-                    date.end_of_day])
-            .any?
+    activities_on_date.any? || jefit_activity_date_on_date
   end
 
   def previous
     ActivityDay.new(date - 1.day)
+  end
+
+  private
+
+  def activities_on_date
+    Activity.qualifying
+            .where(['started_at BETWEEN ? AND ?',
+                    date.beginning_of_day,
+                    date.end_of_day])
+  end
+
+  def jefit_activity_date_on_date
+    JefitActivityDate.find_by(active_on: date)
   end
 end
