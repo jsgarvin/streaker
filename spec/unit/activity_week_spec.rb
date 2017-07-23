@@ -4,6 +4,16 @@ describe ActivityWeek do
   let(:day_constructor ) { double('ActivityDay') }
   let(:week) { ActivityWeek.new(2.weeks.ago, day_constructor: day_constructor) }
 
+  describe '.wrap' do
+    let(:start) { 5.weeks.ago.to_date }
+    let(:stop) { 2.weeks.ago.to_date }
+    let(:package) { ActivityWeek.wrap(start, stop) }
+
+    it 'returns activity weeks for entire range' do
+      expect(package.all? { |w| w.is_a?(ActivityWeek) }).to eq(true)
+      expect(package.count).to eq(4)
+    end
+  end
 
   describe '#active?' do
     context 'when there are *no* active days during the week' do
@@ -14,6 +24,28 @@ describe ActivityWeek do
 
       it 'should be falsey' do
         expect(week.active?).to be_falsey
+      end
+
+      context 'when there is one jefit activity date' do
+        before do
+          FactoryGirl.create(:jefit_activity_date,
+                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+        end
+
+        it 'should be falsey' do
+          expect(week.active?).to be_falsey
+        end
+
+        context 'when there is another jefit activity date' do
+          before do
+            FactoryGirl.create(:jefit_activity_date,
+                               active_on: 2.weeks.ago.beginning_of_week + 3.days)
+          end
+
+          it 'should be falsey' do
+            expect(week.active?).to be_falsey
+          end
+        end
       end
     end
 
@@ -28,6 +60,28 @@ describe ActivityWeek do
       it 'should be falsey' do
         expect(week.active?).to be_falsey
       end
+
+      context 'when there is one jefit activity date' do
+        before do
+          FactoryGirl.create(:jefit_activity_date,
+                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+        end
+
+        it 'should be falsey' do
+          expect(week.active?).to be_falsey
+        end
+
+        context 'when there is another jefit activity date' do
+          before do
+            FactoryGirl.create(:jefit_activity_date,
+                               active_on: 2.weeks.ago.beginning_of_week + 3.days)
+          end
+
+          it 'should be falsey' do
+            expect(week.active?).to be_falsey
+          end
+        end
+      end
     end
 
     context 'when there are two active day during the week' do
@@ -39,7 +93,29 @@ describe ActivityWeek do
       end
 
       it 'should be truthy' do
-        expect(week.active?).to be_truthy
+        expect(week.active?).to be_falsey
+      end
+
+      context 'when there is one jefit activity date' do
+        before do
+          FactoryGirl.create(:jefit_activity_date,
+                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+        end
+
+        it 'should be falsey' do
+          expect(week.active?).to be_falsey
+        end
+
+        context 'when there is another jefit activity date' do
+          before do
+            FactoryGirl.create(:jefit_activity_date,
+                               active_on: 2.weeks.ago.beginning_of_week + 3.days)
+          end
+
+          it 'should be falsey' do
+            expect(week.active?).to be_truthy
+          end
+        end
       end
     end
   end

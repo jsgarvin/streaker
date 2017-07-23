@@ -14,14 +14,15 @@ task :spec do
   RSpec::Core::RakeTask.new(:spec)
 end
 
-namespace :strava do
+namespace :streaker do
   desc 'Pull strava activities'
-  task :pull do
+  task :process do
     begin
-      Streaker.logger.info('Running rake strava:pull')
+      Streaker.logger.info('Running rake streaker:process')
       begin
         AdmitOne::LockFile.new(:streaker) do
           StravaPull.new.call
+          JefitScraping.new.call
           SnapshotFill.new.call
           AlertCheck.new.call
         end

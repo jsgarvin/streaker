@@ -3,11 +3,12 @@ source 'https://rubygems.org'
 gem 'activerecord'
 gem 'activesupport'
 gem 'admit_one'
-gem 'rake'
-gem 'sqlite3'
-gem 'strava-api-v3'
-gem 'remote_syslog_logger'
 gem 'http'
+gem 'mechanize'
+gem 'rake'
+gem 'remote_syslog_logger'
+gem 'strava-api-v3'
+gem 'sqlite3'
 
 group :development do
   gem 'rubocop', require: false

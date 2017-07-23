@@ -1,8 +1,17 @@
 class SnapshotCalculation
-  attr_reader :at
+  attr_reader :at,
+              :streak_constructor,
+              :activity_day_constructor,
+              :activity_week_constructor
 
-  def initialize(at: Time.now)
+  def initialize(at: Time.now,
+                 streak_constructor: Streak,
+                 activity_day_constructor: ActivityDay,
+                 activity_week_constructor: ActivityWeek)
     @at = at
+    @streak_constructor = streak_constructor
+    @activity_day_constructor = activity_day_constructor
+    @activity_week_constructor = activity_week_constructor
   end
 
   def save
@@ -83,24 +92,14 @@ class SnapshotCalculation
   private
 
   def streak
-    @streak ||= Streak.new(ending_on: at)
+    @streak ||= streak_constructor.new(ending_on: at)
   end
 
   def active_days_between(start, stop)
-    zone_start = start.in_time_zone(Streaker.config.time_zone).to_date
-    zone_stop = stop.in_time_zone(Streaker.config.time_zone).to_date
-    (zone_start..zone_stop).count do |date|
-      ActivityDay.new(date).active?
-    end
+    activity_day_constructor.wrap(start.to_date, stop.to_date).count(&:active?)
   end
 
   def active_weeks_between(start, stop)
-    zone_start = start.in_time_zone(Streaker.config.time_zone).to_date
-    zone_stop = stop.in_time_zone(Streaker.config.time_zone).to_date
-    mondays = (zone_start.beginning_of_week..zone_stop).each_slice(7)
-                                                       .map(&:first)
-    mondays.count do |date|
-      ActivityWeek.new(date).active?
-    end
+    activity_week_constructor.wrap(start.to_date, stop.to_date).count(&:active?)
   end
 end

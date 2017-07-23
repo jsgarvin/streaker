@@ -6,6 +6,9 @@ module Streaker
   config.pushover_token = "yyyyyyyyyyyyyy"
   config.pushover_user_key = "zzzzzzzzzzzzz"
 
+  config.jefit_username = 'aaaaaa'
+  config.jefit_password = 'bbbbbbbbbbbbbbbb'
+
   config.time_zone  = "US/Mountain"
 
   # Set config.logger if you want to use a different ruby logger
