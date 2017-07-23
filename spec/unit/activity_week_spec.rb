@@ -4,6 +4,16 @@ describe ActivityWeek do
   let(:day_constructor ) { double('ActivityDay') }
   let(:week) { ActivityWeek.new(2.weeks.ago, day_constructor: day_constructor) }
 
+  describe '.wrap' do
+    let(:start) { 5.weeks.ago.to_date }
+    let(:stop) { 2.weeks.ago.to_date }
+    let(:package) { ActivityWeek.wrap(start, stop) }
+
+    it 'returns activity weeks for entire range' do
+      expect(package.all? { |w| w.is_a?(ActivityWeek) }).to eq(true)
+      expect(package.count).to eq(4)
+    end
+  end
 
   describe '#active?' do
     context 'when there are *no* active days during the week' do

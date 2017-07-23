@@ -1,11 +1,24 @@
 describe SnapshotCalculation do
   let(:time_zone) { 'US/Mountain' }
   let(:target_datetime) { 7.days.ago.in_time_zone(time_zone).beginning_of_week + 5.days + 23.hours }
+  let(:streak_instance) { instance_double('Streak') }
+  let(:streak_constructor) { double('Streak', new: streak_instance)  }
+  let(:activity_day_constructor) { double('ActivityDay')  }
+  let(:activity_week_constructor) { double('ActivityWeek')  }
+  let(:active_unit) { double('active day', active?: true) }
+  let(:inactive_unit) { double('inactive day', active?: false) }
   let(:calculation) do
-    SnapshotCalculation.new(at: target_datetime)
+    SnapshotCalculation.new(at: target_datetime,
+                            streak_constructor: streak_constructor,
+                            activity_day_constructor: activity_day_constructor,
+                            activity_week_constructor: activity_week_constructor)
   end
 
   before do
+    allow(streak_instance).to receive(:days).and_return([])
+    allow(streak_instance).to receive(:weeks).and_return([])
+    allow(activity_day_constructor).to receive(:wrap).and_return([])
+    allow(activity_week_constructor).to receive(:wrap).and_return([])
     Streaker.config.time_zone = time_zone
   end
 
@@ -18,107 +31,45 @@ describe SnapshotCalculation do
   end
 
   context '#active_weeks_in_a_row' do
-    context 'when there are no activities during week' do
-      it 'returns 0' do
-        expect(calculation.active_weeks_in_a_row).to eql(0)
+    context 'when streak returns three weeks' do
+      before do
+        allow(streak_instance).to receive(:weeks).and_return((1..3).to_a)
+      end
+
+      it 'should return 3' do
+        expect(calculation.active_weeks_in_a_row).to eql(3)
       end
     end
 
-    context 'when there is one activity during week' do
+    context 'when streak returns ten weeks' do
       before do
-        FactoryGirl.create(:activity, started_at: target_datetime)
+        allow(streak_instance).to receive(:weeks).and_return((1..10).to_a)
       end
 
-      it 'returns 0' do
-        expect(calculation.active_weeks_in_a_row).to eql(0)
-      end
-    end
-
-    context 'when there are two activities during week on the same day' do
-      before do
-        FactoryGirl.create(:activity, started_at: target_datetime - 2.day)
-        FactoryGirl.create(:activity, started_at: target_datetime - 2.days)
-      end
-
-      it 'returns 0' do
-        expect(calculation.active_weeks_in_a_row).to eql(0)
-      end
-    end
-
-    context 'when there are two activities during week on different days' do
-      before do
-        FactoryGirl.create(:activity, started_at: target_datetime - 1.day)
-        FactoryGirl.create(:activity, started_at: target_datetime - 2.days)
-      end
-
-      it 'returns 1' do
-        expect(calculation.active_weeks_in_a_row).to eql(1)
-      end
-
-      context 'when there is one activity during the previous week' do
-        before do
-          FactoryGirl.create(:activity, started_at: target_datetime)
-        end
-
-        it 'returns 1' do
-          expect(calculation.active_weeks_in_a_row).to eql(1)
-        end
-      end
-
-      context 'when there are two activities during the previous week '\
-              'on the same day' do
-        before do
-          FactoryGirl.create(:activity, started_at: target_datetime - 8.days)
-          FactoryGirl.create(:activity, started_at: target_datetime - 8.days)
-        end
-
-        it 'returns 1' do
-          expect(calculation.active_weeks_in_a_row).to eql(1)
-        end
-      end
-
-      context 'when there are two activities during the previous week '\
-              'on different days' do
-        before do
-          FactoryGirl.create(:activity, started_at: target_datetime - 8.days)
-          FactoryGirl.create(:activity, started_at: target_datetime - 9.days)
-        end
-
-        it 'returns 2' do
-          expect(calculation.active_weeks_in_a_row).to eql(2)
-        end
+      it 'should return 10' do
+        expect(calculation.active_weeks_in_a_row).to eql(10)
       end
     end
   end
 
   context '#active_days_in_a_row' do
-    context 'when there are no activities on target day' do
-      it 'returns 0' do
-        expect(calculation.active_days_in_a_row).to eql(0)
+    context 'when streak returns three days' do
+      before do
+        allow(streak_instance).to receive(:days).and_return((1..3).to_a)
+      end
+
+      it 'should return 3' do
+        expect(calculation.active_days_in_a_row).to eql(3)
       end
     end
 
-    context 'when there are activities' do
+    context 'when streak returns ten days' do
       before do
-        FactoryGirl.create(:activity, started_at: target_datetime)
+        allow(streak_instance).to receive(:days).and_return((1..10).to_a)
       end
 
-      context 'when the day before the activity did not have an activity' do
-        it 'returns active_days_in_a_row of 1' do
-          expect(calculation.active_days_in_a_row).to eql(1)
-        end
-      end
-
-      context 'when the day before the activity had an activity' do
-        before do
-          FactoryGirl.create(:activity, started_at: target_datetime - 1.day)
-        end
-
-        it 'returns active_days_in_a_row of 2' do
-          Timeout.timeout(5) do
-            expect(calculation.active_days_in_a_row).to eql(2)
-          end
-        end
+      it 'should return 10' do
+        expect(calculation.active_days_in_a_row).to eql(10)
       end
     end
   end
@@ -128,27 +79,34 @@ describe SnapshotCalculation do
       (target_datetime - (DAYS_IN_A_MONTH - 1).days).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_day_constructor' do
+      expect(activity_day_constructor).to receive(:wrap)
+                                      .with(start_of_range, end_of_range)
+      calculation.active_days_in_last_month
     end
 
-    context 'when there are no active days in range' do
-      it' should return 0' do
-        expect(calculation.active_days_in_last_month).to eq(0)
-      end
-    end
-
-    context 'when there are active days in range' do
+    context 'when activity_day_constructor returns 3 active days' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(9).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + x.days + 1.minute)
-        end
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
       end
 
-      it 'should return active days'  do
-        expect(calculation.active_days_in_last_month).to eq(10)
+      it 'should return 3' do
+        expect(calculation.active_days_in_last_month).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_days_in_last_month).to eq(12)
       end
     end
   end
@@ -158,27 +116,34 @@ describe SnapshotCalculation do
       (target_datetime - (DAYS_IN_A_QUARTER - 1).days).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_day_constructor' do
+      expect(activity_day_constructor).to receive(:wrap)
+                                      .with(start_of_range, end_of_range)
+      calculation.active_days_in_last_quarter
     end
 
-    context 'when there are no active days in range' do
-      it' should return 0' do
-        expect(calculation.active_days_in_last_quarter).to eq(0)
-      end
-    end
-
-    context 'when there are active days in range' do
+    context 'when activity_day_constructor returns 3 active days' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(9).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (2*x).days + 1.minute)
-        end
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
       end
 
-      it 'should return active days'  do
-        expect(calculation.active_days_in_last_quarter).to eq(10)
+      it 'should return 3' do
+        expect(calculation.active_days_in_last_quarter).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_days_in_last_quarter).to eq(12)
       end
     end
   end
@@ -188,27 +153,34 @@ describe SnapshotCalculation do
       (target_datetime - (DAYS_IN_A_YEAR - 1).days).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_day_constructor' do
+      expect(activity_day_constructor).to receive(:wrap)
+                                      .with(start_of_range, end_of_range)
+      calculation.active_days_in_last_year
     end
 
-    context 'when there are no active days in range' do
-      it' should return 0' do
-        expect(calculation.active_days_in_last_year).to eq(0)
-      end
-    end
-
-    context 'when there are active days in range' do
+    context 'when activity_day_constructor returns 3 active days' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(99).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (3*x).days + 1.minute)
-        end
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
       end
 
-      it 'should return active days'  do
-        expect(calculation.active_days_in_last_year).to eq(100)
+      it 'should return 3' do
+        expect(calculation.active_days_in_last_year).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_days_in_last_year).to eq(12)
       end
     end
   end
@@ -218,218 +190,256 @@ describe SnapshotCalculation do
       (target_datetime - (DAYS_IN_THREE_YEARS - 1).days).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_day_constructor' do
+      expect(activity_day_constructor).to receive(:wrap)
+                                      .with(start_of_range, end_of_range)
+      calculation.active_days_in_last_three_years
     end
 
-    context 'when there are no active days in range' do
-      it' should return 0' do
-        expect(calculation.active_days_in_last_three_years).to eq(0)
-      end
-    end
-
-    context 'when there are active days in range' do
+    context 'when activity_day_constructor returns 3 active days' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(101).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (6*x).days + 1.minute)
-        end
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
       end
 
-      it 'should return active days'  do
-        expect(calculation.active_days_in_last_three_years).to eq(102)
+      it 'should return 3' do
+        expect(calculation.active_days_in_last_three_years).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_days_in_last_three_years).to eq(12)
       end
     end
   end
-
 
   context '#active_days_in_last_five_years' do
     let(:start_of_range) do
       (target_datetime - (DAYS_IN_FIVE_YEARS - 1).days).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_day_constructor' do
+      expect(activity_day_constructor).to receive(:wrap)
+                                      .with(start_of_range, end_of_range)
+      calculation.active_days_in_last_five_years
     end
 
-    context 'when there are no active days in range' do
-      it' should return 0' do
-        expect(calculation.active_days_in_last_five_years).to eq(0)
-      end
-    end
-
-    context 'when there are active days in range' do
+    context 'when activity_day_constructor returns 3 active days' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(121).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (6*x).days + 1.minute)
-        end
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
       end
 
-      it 'should return active days'  do
-        expect(calculation.active_days_in_last_five_years).to eq(122)
+      it 'should return 3' do
+        expect(calculation.active_days_in_last_five_years).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_day_constructor).to receive(:wrap)
+                                       .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_days_in_last_five_years).to eq(12)
       end
     end
   end
 
   context '#active_weeks_in_last_month' do
     let(:start_of_range) do
-      (target_datetime.beginning_of_week - (WEEKS_IN_A_MONTH - 1).weeks).to_date
+      (target_datetime - (WEEKS_IN_A_MONTH - 1).weeks).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_week_constructor' do
+      expect(activity_week_constructor).to receive(:wrap)
+                                       .with(start_of_range, end_of_range)
+      calculation.active_weeks_in_last_month
     end
 
-    context 'when there are no active weeks in range' do
-      it' should return 0' do
-        expect(calculation.active_weeks_in_last_month).to eq(0)
-      end
-    end
-
-    context 'when there are active weeks in range' do
+    context 'when activity_week_constructor returns 3 active weeks' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(1).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + x.weeks + 1.day)
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + x.weeks + 2.days)
-        end
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
       end
 
-      it 'should return active weeks'  do
-        expect(calculation.active_weeks_in_last_month).to eq(2)
+      it 'should return 3' do
+        expect(calculation.active_weeks_in_last_month).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_weeks_in_last_month).to eq(12)
       end
     end
   end
 
   context '#active_weeks_in_last_quarter' do
     let(:start_of_range) do
-      (target_datetime.beginning_of_week - (WEEKS_IN_A_QUARTER - 1).weeks).to_date
+      (target_datetime - (WEEKS_IN_A_QUARTER - 1).weeks).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_week_constructor' do
+      expect(activity_week_constructor).to receive(:wrap)
+                                       .with(start_of_range, end_of_range)
+      calculation.active_weeks_in_last_quarter
     end
 
-    context 'when there are no active weeks in range' do
-      it' should return 0' do
-        expect(calculation.active_weeks_in_last_quarter).to eq(0)
-      end
-    end
-
-    context 'when there are active weeks in range' do
+    context 'when activity_week_constructor returns 3 active weeks' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(3).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*2).weeks + 1.day)
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*2).weeks + 2.days)
-        end
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
       end
 
-      it 'should return active weeks'  do
-        expect(calculation.active_weeks_in_last_quarter).to eq(4)
+      it 'should return 3' do
+        expect(calculation.active_weeks_in_last_quarter).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_weeks_in_last_quarter).to eq(12)
       end
     end
   end
 
   context '#active_weeks_in_last_year' do
     let(:start_of_range) do
-      (target_datetime.beginning_of_week - (WEEKS_IN_A_YEAR - 1).weeks).to_date
+      (target_datetime - (WEEKS_IN_A_YEAR - 1).weeks).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_week_constructor' do
+      expect(activity_week_constructor).to receive(:wrap)
+                                       .with(start_of_range, end_of_range)
+      calculation.active_weeks_in_last_year
     end
 
-    context 'when there are no active weeks in range' do
-      it' should return 0' do
-        expect(calculation.active_weeks_in_last_year).to eq(0)
-      end
-    end
-
-    context 'when there are active weeks in range' do
+    context 'when activity_week_constructor returns 3 active weeks' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(19).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*2).weeks + 1.day)
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*2).weeks + 2.days)
-        end
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
       end
 
-      it 'should return active weeks'  do
-        expect(calculation.active_weeks_in_last_year).to eq(20)
+      it 'should return 3' do
+        expect(calculation.active_weeks_in_last_year).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_weeks_in_last_year).to eq(12)
       end
     end
   end
 
   context '#active_weeks_in_last_three_years' do
     let(:start_of_range) do
-      (target_datetime.beginning_of_week - (WEEKS_IN_THREE_YEARS - 1).weeks).to_date
+      (target_datetime - (WEEKS_IN_THREE_YEARS - 1).weeks).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_week_constructor' do
+      expect(activity_week_constructor).to receive(:wrap)
+                                       .with(start_of_range, end_of_range)
+      calculation.active_weeks_in_last_three_years
     end
 
-    context 'when there are no active weeks in range' do
-      it' should return 0' do
-        expect(calculation.active_weeks_in_last_three_years).to eq(0)
-      end
-    end
-
-    context 'when there are active weeks in range' do
+    context 'when activity_week_constructor returns 3 active weeks' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(23).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*3).weeks + 1.day)
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*3).weeks + 3.days)
-        end
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
       end
 
-      it 'should return active weeks'  do
-        expect(calculation.active_weeks_in_last_three_years).to eq(24)
+      it 'should return 3' do
+        expect(calculation.active_weeks_in_last_three_years).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_weeks_in_last_three_years).to eq(12)
       end
     end
   end
 
   context '#active_weeks_in_last_five_years' do
     let(:start_of_range) do
-      (target_datetime.beginning_of_week - (WEEKS_IN_FIVE_YEARS - 1).weeks).to_date
+      (target_datetime - (WEEKS_IN_FIVE_YEARS - 1).weeks).to_date
     end
     let(:end_of_range) { target_datetime.to_date }
-    before do
-      # create out of range activity
-      FactoryGirl.create(:activity, started_at: start_of_range - 1.day)
+
+    it 'should query activity_week_constructor' do
+      expect(activity_week_constructor).to receive(:wrap)
+                                       .with(start_of_range, end_of_range)
+      calculation.active_weeks_in_last_five_years
     end
 
-    context 'when there are no active weeks in range' do
-      it' should return 0' do
-        expect(calculation.active_weeks_in_last_five_years).to eq(0)
-      end
-    end
-
-    context 'when there are active weeks in range' do
+    context 'when activity_week_constructor returns 3 active weeks' do
+      let(:result) { [active_unit]*3 + [inactive_unit]*2 }
       before do
-        0.upto(25).each do |x|
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*4).weeks + 1.day)
-          FactoryGirl.create(:qualifying_activity,
-                             started_at: start_of_range + (x*4).weeks + 5.days)
-        end
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
       end
 
-      it 'should return active weeks'  do
-        expect(calculation.active_weeks_in_last_five_years).to eq(26)
+      it 'should return 3' do
+        expect(calculation.active_weeks_in_last_five_years).to eq(3)
+      end
+    end
+
+    context 'when activity_day_constructor returns 12 active days' do
+      let(:result) { [active_unit]*12 + [inactive_unit]*6 }
+      before do
+        allow(activity_week_constructor).to receive(:wrap)
+                                        .and_return(result.shuffle)
+      end
+
+      it 'should return 12' do
+        expect(calculation.active_weeks_in_last_five_years).to eq(12)
       end
     end
   end
