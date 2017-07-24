@@ -38,10 +38,10 @@ class SnapshotFill
   end
 
   def last_activity
-    Activity.order(:started_at).last
+    Activity.qualifying.order(:started_at).last
   end
 
   def first_activity
-    Activity.order(:started_at).first
+    Activity.qualifying.order(:started_at).first
   end
 end
