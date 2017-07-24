@@ -13,6 +13,8 @@ class StravaPull
         started_at: DateTime.parse(strava_activity['start_date']),
         strava_type: strava_activity['type'],
         distance_in_meters: strava_activity['distance'].to_f,
+        average_heart_rate: strava_activity['average_heartrate'],
+        maximum_heart_rate: strava_activity['max_heartrate'],
         moving_time_in_seconds: strava_activity['moving_time'].to_i
       ).find_or_create_by(strava_id: strava_activity['id'])
     end

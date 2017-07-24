@@ -5,6 +5,7 @@ FactoryGirl.define do
     strava_type 'Run'
     distance_in_meters 42
     moving_time_in_seconds 630
+    average_heart_rate 91
 
     factory :unqualifyng_activity do
       moving_time_in_seconds 500
