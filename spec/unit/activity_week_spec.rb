@@ -2,7 +2,9 @@ describe ActivityWeek do
   let(:inactive_day) { instance_double('ActivityDay', active?: false) }
   let(:active_day) { instance_double('ActivityDay', active?: true) }
   let(:day_constructor ) { double('ActivityDay') }
-  let(:week) { ActivityWeek.new(2.weeks.ago, day_constructor: day_constructor) }
+  let(:week) do
+    ActivityWeek.new(2.weeks.ago, day_constructor: day_constructor)
+  end
 
   describe '.wrap' do
     let(:start) { 5.weeks.ago.to_date }
@@ -29,7 +31,7 @@ describe ActivityWeek do
       context 'when there is one jefit activity date' do
         before do
           FactoryGirl.create(:jefit_activity_date,
-                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+                             active_on: 2.weeks.ago.beginning_of_week)
         end
 
         it 'should be falsey' do
@@ -64,7 +66,7 @@ describe ActivityWeek do
       context 'when there is one jefit activity date' do
         before do
           FactoryGirl.create(:jefit_activity_date,
-                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+                             active_on: 2.weeks.ago.beginning_of_week)
         end
 
         it 'should be falsey' do
@@ -99,7 +101,7 @@ describe ActivityWeek do
       context 'when there is one jefit activity date' do
         before do
           FactoryGirl.create(:jefit_activity_date,
-                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+                             active_on: 2.weeks.ago.beginning_of_week)
         end
 
         it 'should be falsey' do
@@ -134,7 +136,7 @@ describe ActivityWeek do
       context 'when there is one jefit activity date' do
         before do
           FactoryGirl.create(:jefit_activity_date,
-                             active_on: 2.weeks.ago.beginning_of_week + 1.day)
+                             active_on: 2.weeks.ago.beginning_of_week)
         end
 
         it 'should be falsey' do

@@ -35,6 +35,8 @@ class ActivityWeek
   end
 
   def jefit_activity_dates
-    JefitActivityDate.where(active_on: date.beginning_of_week..date.end_of_week)
+    JefitActivityDate.where(
+      active_on: date.beginning_of_week.to_date..date.end_of_week.to_date
+    )
   end
 end
