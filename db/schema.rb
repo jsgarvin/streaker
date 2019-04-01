@@ -10,16 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170723194455315) do
+ActiveRecord::Schema.define(version: 20190331213149767) do
 
   create_table "activities", force: :cascade do |t|
-    t.integer  "strava_id"
+    t.integer  "strava_id",              limit: 8
     t.datetime "started_at"
     t.string   "strava_type"
-    t.decimal  "distance_in_meters",     precision: 8, scale: 1
+    t.decimal  "distance_in_meters",               precision: 8, scale: 1
     t.integer  "moving_time_in_seconds"
-    t.datetime "created_at",                                     null: false
-    t.datetime "updated_at",                                     null: false
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
     t.integer  "average_heart_rate"
     t.integer  "maximum_heart_rate"
     t.index ["started_at"], name: "index_activities_on_started_at"
